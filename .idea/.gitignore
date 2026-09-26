@@ -1,0 +1,12 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+
+# Configuraciones de editores (PyCharm / VS Code)
+.idea/
+.vscode/
