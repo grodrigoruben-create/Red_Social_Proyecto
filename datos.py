@@ -1,16 +1,16 @@
 from pila import Pila
 
 PUBLICACIONES_PRECARGADAS = [
-    {"id": 1, "titulo": "Atardecer en la playa", "categoria": "Naturaleza"},
-    {"id": 2, "titulo": "Montañas nevadas", "categoria": "Paisaje"},
-    {"id": 3, "titulo": "Bosque místico", "categoria": "Naturaleza"},
-    {"id": 4, "titulo": "Café matutino", "categoria": "Estilo de vida"},
-    {"id": 5, "titulo": "Arquitectura moderna", "categoria": "Diseño"},
-    {"id": 6, "titulo": "Paseo por la ciudad", "categoria": "Urbano"},
-    {"id": 7, "titulo": "Camino rural", "categoria": "Paisaje"},
-    {"id": 8, "titulo": "Aventura en el desierto", "categoria": "Viajes"},
-    {"id": 9, "titulo": "Cielo estrellado", "categoria": "Noche"},
-    {"id": 10, "titulo": "Fauna silvestre", "categoria": "Animales"}
+    {"id": 1, "usuario": "ana_gomez", "titulo": "Atardecer en la playa", "categoria": "Naturaleza", "imagen": "uploads/playa.jpg"},
+    {"id": 2, "usuario": "lara.belen.v", "titulo": "Montañas nevadas", "categoria": "Paisaje", "imagen": "uploads/montaña.jpg"},
+    {"id": 3, "usuario": "Lucas_Silva", "titulo": "Bosque místico", "categoria": "Naturaleza", "imagen": "uploads/bosque.jpg"},
+    {"id": 4, "usuario": "Emmanuel_GLZ", "titulo": "Café matutino", "categoria": "Estilo de vida", "imagen": "uploads/cafe.jpg"},
+    {"id": 5, "usuario": "is_luisangel", "titulo": "Arquitectura moderna", "categoria": "Diseño", "imagen": "uploads/arquitectura.jpg"},
+    {"id": 6, "usuario": "Sofía_M", "titulo": "Paseo por la ciudad", "categoria": "Urbano", "imagen": "uploads/ciudad.jpg"},
+    {"id": 7, "usuario": "its.Trebor", "titulo": "Camino rural", "categoria": "Paisaje", "imagen": "uploads/camino.jpg"},
+    {"id": 8, "usuario": "Elena_Rossi", "titulo": "Aventura en el desierto", "categoria": "Viajes", "imagen": "uploads/desierto.jpg"},
+    {"id": 9, "usuario": "alejandra_Ruiz", "titulo": "Cielo estrellado", "categoria": "Noche", "imagen": "uploads/cielo.jpg"},
+    {"id": 10, "usuario": "[liam.v]", "titulo": "Fauna silvestre", "categoria": "Animales", "imagen": "uploads/fauna.jpg"}
 ]
 
 COMENTARIOS_PREDETERMINADOS = [
@@ -57,5 +57,5 @@ def retirar_like(pub):
     return encontrado
 
 def agregar_comentario(pub, comentario):
-    """Registra el comentario en el historial."""
+    pub.setdefault("comentarios", []).append(comentario)
     registrar_accion("COMENTARIO", f"En '{pub['titulo']}': \"{comentario}\"")
