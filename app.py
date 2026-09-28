@@ -254,26 +254,89 @@ class RedSocialApp:
 
     # --- PESTAÑA 3: HISTORIAL ---
     def construir_historial(self):
-        self.lbl_peek_hist = ttk.Label(self.tab_historial, text="📌 Última Acción (Peek): Ninguna", font=("Helvetica", 10, "italic"))
-        self.lbl_peek_hist.pack(anchor="w", padx=10, pady=10)
+            
+            style = ttk.Style()
+            if 'clam' in style.theme_names():
+                style.theme_use("clam")
+                
+            style.configure("Treeview", 
+                            background=self.paleta["fondo_app"],
+                            foreground="#101010",
+                            rowheight=35, 
+                            fieldbackground=self.paleta["fondo_app"],
+                            font=("Open Sans", 11))
+            
+            style.configure("Treeview.Heading", 
+                            font=("Open Sans", 12, "bold"), 
+                            background=self.paleta["fondo_app"], 
+                            foreground="#222222",
+                            relief="flat")
+                            
+            # Color al seleccionar una fila
+            style.map('Treeview', bg=[('selected', '#0078D7')], fg=[('selected', 'white')])
 
-        self.listbox_hist = tk.Listbox(self.tab_historial, font=("Helvetica", 10))
-        self.listbox_hist.pack(fill="both", expand=True, padx=10, pady=5)
+            # Etiqueta superior
+            self.lbl_peek_hist = ttk.Label(self.tab_historial, text="Última Acción: Ninguna", font=("Open Sans", 12, "bold"),  background=self.paleta["fondo_app"],  foreground=self.paleta["texto_principal"])
+            self.lbl_peek_hist.pack(anchor="w", padx=15, pady=(15, 5))
+
+            # 2. Contenedor para la tabla y el scrollbar
+            frame_tabla = tk.Frame(self.tab_historial, bg="white", bd=1, relief="solid")
+            frame_tabla.pack(fill="both", expand=True, padx=15, pady=(0, 15))
+
+            columnas = ("numero", "accion", "detalle")
+            self.tabla_historial = ttk.Treeview(
+                frame_tabla,
+                columns=columnas,
+                show="headings",
+                style="Treeview"
+            )
+
+            scrollbar = ttk.Scrollbar(frame_tabla, orient="vertical", command=self.tabla_historial.yview)
+            self.tabla_historial.configure(yscrollcommand=scrollbar.set)
+
+            # Configurar encabezados
+            self.tabla_historial.heading("numero", text="#")
+            self.tabla_historial.heading("accion", text="Acción")
+            self.tabla_historial.heading("detalle", text="Detalle")
+
+            # Configurar columnas
+            self.tabla_historial.column("numero", width=50, anchor="center", stretch=False)
+            self.tabla_historial.column("accion", width=180, anchor="center", stretch=False)
+            self.tabla_historial.column("detalle", width=500, anchor="w")
+
+            # Empaquetar tabla y scrollbar dentro del frame
+            self.tabla_historial.pack(side="left", fill="both", expand=True)
+            scrollbar.pack(side="right", fill="y")
+            
+            self.tabla_historial.tag_configure('par', background=self.paleta["fondo_app"])
+            self.tabla_historial.tag_configure('impar', background="#cffbff")
 
     def actualizar_historial(self):
-        self.listbox_hist.delete(0, tk.END)
+        for item in self.tabla_historial.get_children():
+            self.tabla_historial.delete(item)
+
+        # Asumo que 'datos' es una variable global o importada en tu script
         ultimo = datos.pila_historial.peek()
 
         if ultimo:
-            self.lbl_peek_hist.config(text=f"📌 Última Acción (Peek): [{ultimo['accion']}] {ultimo['detalle']}")
+            self.lbl_peek_hist.config(text=f"Última Acción: [{ultimo['accion']}] {ultimo['detalle']}")
         else:
-            self.lbl_peek_hist.config(text="📌 Última Acción (Peek): Ninguna")
+            self.lbl_peek_hist.config(text="Última Acción: Ninguna")
 
         # Mostrar en orden LIFO
         historial = list(reversed(datos.pila_historial.obtener_elementos()))
-        for item in historial:
-            self.listbox_hist.insert(tk.END, f"▶ [{item['accion']}] {item['detalle']}")
+        numero = 1
 
+        for item in historial:
+            # Determinar si la fila es par o impar para el color de fondo
+            tag = 'par' if numero % 2 == 0 else 'impar'
+            
+            self.tabla_historial.insert(
+                "", tk.END,
+                values=(numero, item["accion"], item["detalle"]),
+                tags=(tag,) # Aplicamos la etiqueta de color aquí
+            )
+            numero += 1
 
 if __name__ == "__main__":
     root = tk.Tk()
