@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 import datos
+import favoritos
+
+
 class RedSocialApp:
     def __init__(self, root):
         self.root = root
@@ -9,15 +12,15 @@ class RedSocialApp:
         self.root.geometry("850x600")
 
         self.paleta = {
-            "fondo_app": "#fafafa",       
-            "fondo_barra": "#ffffff",     
-            "texto_principal": "#000000", 
-            "texto_secundario": "#262626" 
+            "fondo_app": "#fafafa",
+            "fondo_barra": "#ffffff",
+            "texto_principal": "#000000",
+            "texto_secundario": "#262626"
         }
 
         self.root.configure(bg=self.paleta["fondo_app"])
 
-        self.iconos_guardados = {} 
+        self.iconos_guardados = {}
         self.iconos_feed = {}
         self.cargar_iconos_feed()
         self.pub_comentarios_actual = None
@@ -25,11 +28,11 @@ class RedSocialApp:
         self.top_bar = tk.Frame(self.root, bg=self.paleta["fondo_barra"], bd=1, relief="sunken")
         self.top_bar.pack(side="top", fill="x")
 
-        self.lbl_logo = tk.Label(self.top_bar, text="MiRedSocial", 
-                                 font=("Helvetica", 16, "italic bold"), 
-                                 bg=self.paleta["fondo_barra"], 
+        self.lbl_logo = tk.Label(self.top_bar, text="MiRedSocial",
+                                 font=("Helvetica", 16, "italic bold"),
+                                 bg=self.paleta["fondo_barra"],
                                  fg=self.paleta["texto_principal"])
-        
+
         self.lbl_logo.pack(side="left", padx=20, pady=10)
 
         self.icon_frame = tk.Frame(self.top_bar, bg=self.paleta["fondo_barra"])
@@ -53,19 +56,19 @@ class RedSocialApp:
         self.cambiar_vista(self.tab_feed)
 
     def crear_boton_nav(self, texto, ruta_imagen, comando):
-  
+
         img_original = Image.open(ruta_imagen)
         img_redimensionada = img_original.resize((24, 24), Image.LANCZOS)
-        
+
         icono = ImageTk.PhotoImage(img_redimensionada)
-        
+
         self.iconos_guardados[texto] = icono
-        
+
         btn = tk.Button(self.icon_frame, text=texto, image=icono, compound="top",
                         bg=self.paleta["fondo_barra"], fg=self.paleta["texto_principal"],
-                        activebackground=self.paleta["fondo_barra"], 
-                            bd=0, cursor="hand2", font=("Arial", 9), command=comando)
-            
+                        activebackground=self.paleta["fondo_barra"],
+                        bd=0, cursor="hand2", font=("Arial", 9), command=comando)
+
         btn.pack(side="left", padx=15)
 
     def cargar_iconos_feed(self):
@@ -126,7 +129,6 @@ class RedSocialApp:
         canvas.bind("<Enter>", _activar_scroll)
         canvas.bind("<Leave>", _desactivar_scroll)
 
-
         frame_derecha = tk.Frame(frame_split, bg="white", width=320, bd=1, relief="solid")
         frame_derecha.pack(side="right", fill="y")
         frame_derecha.pack_propagate(False)
@@ -148,11 +150,10 @@ class RedSocialApp:
             frame_header = tk.Frame(frame_item, bg="white")
             frame_header.pack(fill="x", padx=10, pady=8)
 
-
             lbl_perfil = tk.Label(frame_header, image=self.iconos_feed["perfil"], bg="white")
             lbl_perfil.pack(side="left")
 
-            lbl_usuario = tk.Label(frame_header, text=pub.get("usuario", f"usuario_{pub['id']}"), font=("Helvetica", 11, "bold"), bg="white")            
+            lbl_usuario = tk.Label(frame_header, text=pub.get("usuario", f"usuario_{pub['id']}"), font=("Helvetica", 11, "bold"), bg="white")
             lbl_usuario.pack(side="left", padx=10)
 
             try:
@@ -243,25 +244,13 @@ class RedSocialApp:
 
     # --- PESTAÑA 2: LIKES ---
     def construir_likes(self):
-        self.lbl_peek_like = ttk.Label(self.tab_likes, text="📌 Tope de Pila (Peek): Ninguno", font=("Helvetica", 10, "italic"))
-        self.lbl_peek_like.pack(anchor="w", padx=10, pady=10)
-
-        self.listbox_likes = tk.Listbox(self.tab_likes, font=("Helvetica", 10))
-        self.listbox_likes.pack(fill="both", expand=True, padx=10, pady=5)
+        self.vista_favoritos = favoritos.VistaFavoritos(
+            self.tab_likes, on_cambio=self.actualizar_historial
+        )
+        self.vista_favoritos.pack(fill="both", expand=True)
 
     def actualizar_likes(self):
-        self.listbox_likes.delete(0, tk.END)
-        ultimo = datos.pila_likes.peek()
-
-        if ultimo:
-            self.lbl_peek_like.config(text=f"📌 Tope de Pila (Peek): {ultimo['titulo']}")
-        else:
-            self.lbl_peek_like.config(text="📌 Tope de Pila (Peek): Ninguno")
-
-        # Se muestran en orden inverso (del tope hacia el fondo, orden LIFO)
-        elementos = list(reversed(datos.pila_likes.obtener_elementos()))
-        for item in elementos:
-            self.listbox_likes.insert(tk.END, f"❤️ {item['titulo']} [{item['categoria']}]")
+        self.vista_favoritos.actualizar()
 
     # --- PESTAÑA 3: HISTORIAL ---
     def construir_historial(self):
@@ -284,6 +273,7 @@ class RedSocialApp:
         historial = list(reversed(datos.pila_historial.obtener_elementos()))
         for item in historial:
             self.listbox_hist.insert(tk.END, f"▶ [{item['accion']}] {item['detalle']}")
+
 
 if __name__ == "__main__":
     root = tk.Tk()
